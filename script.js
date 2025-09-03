@@ -9,9 +9,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
   input.focus();
 
-  // Allow Enter key to trigger submission (scans or manual)
-  input.addEventListener("keypress", function (e) {
-    if (e.key === "Enter") form.requestSubmit();
+  let scanBuffer = "";
+  let lastKeyTime = Date.now();
+
+  input.addEventListener("keydown", function (e) {
+    const currentTime = Date.now();
+    const timeDiff = currentTime - lastKeyTime;
+
+    // Reset buffer if time between keystrokes is slow
+    if (timeDiff > 100) scanBuffer = "";
+
+    lastKeyTime = currentTime;
+    if (e.key >= "0" && e.key <= "9") {
+      scanBuffer += e.key;
+
+      // Auto-submit if 4 or 5 digits typed rapidly
+      if (scanBuffer.length === 4 || scanBuffer.length === 5) {
+        setTimeout(() => {
+          form.requestSubmit();
+          scanBuffer = "";
+        }, 10);
+      }
+    }
   });
 
   form.addEventListener("submit", function (e) {
@@ -28,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
       timestamp: new Date().toISOString()
     };
 
-    fetch("https://script.google.com/macros/s/AKfycbzXfen0UDdXOjwH99Lij1VkOmVxp-tmZGPkMSGUQOXYwREZWmVpKNta1RwzQWy6aVVp/exec", {
+    fetch("YOUR_WEB_APP_URL_HERE", {
       method: "POST",
       mode: "no-cors",
       headers: {
