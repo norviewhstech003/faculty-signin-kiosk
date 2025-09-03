@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
       timestamp: new Date().toISOString()
     };
 
-    fetch("https://script.google.com/macros/s/AKfycbzXfen0UDdXOjwH99Lij1VkOmVxp-tmZGPkMSGUQOXYwREZWmVpKNta1RwzQWy6aVVp/exec", {
+    fetch("https://script.google.com/macros/s/AKfycbwHigYqu60vfL7pw-6phO12UF9bOs5bmh0D_I3rxpfTQyL2diVKh9XeiI-PDWJ7gPg4/exec", {
       method: "POST",
       mode: "no-cors",
       headers: {
