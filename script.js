@@ -24,12 +24,13 @@ document.addEventListener("DOMContentLoaded", function () {
       scanBuffer += e.key;
 
       // Auto-submit if 4 or 5 digits typed rapidly
-      if (scanBuffer.length === 4 || scanBuffer.length === 5) {
-        setTimeout(() => {
-          form.requestSubmit();
-          scanBuffer = "";
-        }, 10);
-      }
+     if (/^\\d{4,5}$/.test(scanBuffer)) {
+  setTimeout(() => {
+    form.requestSubmit();
+    scanBuffer = "";
+  }, 10);
+}
+
     }
   });
 
