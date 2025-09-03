@@ -1,0 +1,38 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+  text-align: center;
+  padding: 50px;
+}
+
+.container {
+  background-color: white;
+  padding: 40px;
+  max-width: 400px;
+  margin: auto;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 15px;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+input[type="submit"] {
+  padding: 10px 30px;
+  font-size: 18px;
+  background-color: #5c6bc0;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#status {
+  margin-top: 15px;
+  font-weight: bold;
+  color: green;
+}
