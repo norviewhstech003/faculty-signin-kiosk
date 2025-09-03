@@ -2,6 +2,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const form = document.getElementById("signin-form");
   const input = document.getElementById("employee-id");
   const status = document.getElementById("status");
+  const dateElement = document.getElementById("current-date");
+
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  dateElement.textContent = new Date().toLocaleDateString(undefined, options);
 
   input.focus();
 
@@ -19,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
       timestamp: new Date().toISOString()
     };
 
-    fetch("https://script.google.com/macros/s/AKfycbwpxYVZ-I8NcJMI6hqY4JBwystqMuoZHD1E3pKMBHAzpggMgfQEjQESN-0B1G1rgMQ/exec", {
+    fetch("YOUR_WEB_APP_URL_HERE", {
       method: "POST",
       mode: "no-cors",
       headers: {
