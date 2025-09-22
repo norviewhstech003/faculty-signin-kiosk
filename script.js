@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const fallbackSubmit = document.getElementById("fallback-submit");
   const mainContainer = document.querySelector(".container");
 
-  const validIds = [1234, 56789, 8513, 32140]; // ← You can paste in your staff ID list here!
+  const validIds = []; // ← You can paste in your staff ID list here!
 
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   dateElement.textContent = new Date().toLocaleDateString(undefined, options);
