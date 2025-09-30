@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const confirmIdInput = document.getElementById("confirm-id");
   const fallbackSubmit = document.getElementById("fallback-submit");
 
-  // 👇 Paste your latest Web App URL here
+  // 👇 Paste your latest Web App URL here after each Apps Script deployment
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzXfen0UDdXOjwH99Lij1VkOmVxp-tmZGPkMSGUQOXYwREZWmVpKNta1RwzQWy6aVVp/exec";
 
   // Show today's date
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let scanBuffer = '';
   let lastKeyTime = Date.now();
 
-  // Handle fast scans or Enter
+  // Handle fast barcode scans or Enter key presses
   input.addEventListener("keydown", function (e) {
     const currentTime = Date.now();
     const timeDiff = currentTime - lastKeyTime;
@@ -59,32 +59,19 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    fetch(https://script.google.com/macros/s/AKfycbzXfen0UDdXOjwH99Lij1VkOmVxp-tmZGPkMSGUQOXYwREZWmVpKNta1RwzQWy6aVVp/exec, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ employeeId: id, timestamp: new Date().toISOString() })
-})
-.then(r => r.json())
-.then(res => {
-  if (res.status === "notInRoster") {
-    // Show fallback form
-    form.style.display = "none";
-    fallbackForm.style.display = "block";
-    confirmIdInput.value = id;
-    status.textContent = "This ID is not in the system. Please enter your full name.";
-  } else if (res.status === "ok") {
-    status.textContent = "Sign-in successful!";
-    setTimeout(() => { status.textContent = ""; }, 3000);
-  } else {
-    status.textContent = "Error: " + (res.message || "Unknown issue");
-  }
-  input.value = "";
-  input.focus();
-})
-.catch(() => {
-  status.textContent = "Network error. Try again.";
-});
-
+    fetch(WEB_APP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ employeeId: id, timestamp: new Date().toISOString() })
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === "notInRoster") {
+        // Show fallback form
+        form.style.display = "none";
+        fallbackForm.style.display = "block";
+        confirmIdInput.value = id;
+        status.textContent = "This ID is not in the system. Please enter your full name.";
       } else if (res.status === "ok") {
         status.textContent = "Sign-in successful!";
         setTimeout(() => { status.textContent = ""; }, 3000);
@@ -109,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    fetch(https://script.google.com/macros/s/AKfycbzXfen0UDdXOjwH99Lij1VkOmVxp-tmZGPkMSGUQOXYwREZWmVpKNta1RwzQWy6aVVp/exec, {
+    fetch(WEB_APP_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -118,13 +105,23 @@ document.addEventListener("DOMContentLoaded", function () {
         timestamp: new Date().toISOString(),
         notInRoster: true
       })
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === "ok" || res.status === "notInRoster") {
+        status.textContent = "Sign-in recorded. Thank you!";
+        setTimeout(() => { status.textContent = ""; }, 3000);
+      } else {
+        status.textContent = "Error: " + (res.message || "Unknown issue");
+      }
+      fallbackForm.reset();
+      fallbackForm.style.display = "none";
+      form.style.display = "block";
+      input.value = "";
+      input.focus();
+    })
+    .catch(() => {
+      status.textContent = "Network error. Try again.";
     });
-
-    status.textContent = "Sign-in recorded. Thank you!";
-    fallbackForm.reset();
-    fallbackForm.style.display = "none";
-    form.style.display = "block";
-    input.value = "";
-    input.focus();
   });
 });
