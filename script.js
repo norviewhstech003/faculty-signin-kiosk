@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let scanBuffer = '';
   let lastKeyTime = Date.now();
 
-  // Handle fast barcode scans or Enter key presses
+  // Handle fast scans or Enter
   input.addEventListener("keydown", function (e) {
     const currentTime = Date.now();
     const timeDiff = currentTime - lastKeyTime;
@@ -30,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (e.key >= "0" && e.key <= "9") {
       scanBuffer += e.key;
-
       if (/^\d{4,5}$/.test(scanBuffer)) {
         setTimeout(() => {
           if (input.value.trim() === scanBuffer) {
@@ -50,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Handle primary form submission
+  // Primary form submission
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     const id = input.value.trim();
@@ -60,11 +59,34 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // Always send to Apps Script — it decides if ID is in roster
-    submitToSheet({ employeeId: id, timestamp: new Date().toISOString() });
+    fetch(WEB_APP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ employeeId: id, timestamp: new Date().toISOString() })
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === "notInRoster") {
+        // Show fallback form
+        form.style.display = "none";
+        fallbackForm.style.display = "block";
+        confirmIdInput.value = id;
+        status.textContent = "This ID is not in the system. Please enter your full name.";
+      } else if (res.status === "ok") {
+        status.textContent = "Sign-in successful!";
+        setTimeout(() => { status.textContent = ""; }, 3000);
+      } else {
+        status.textContent = "Error: " + (res.message || "Unknown issue");
+      }
+      input.value = "";
+      input.focus();
+    })
+    .catch(() => {
+      status.textContent = "Network error. Try again.";
+    });
   });
 
-  // Handle fallback form
+  // Handle fallback submission
   fallbackSubmit.addEventListener("click", function () {
     const fullName = fullNameInput.value.trim();
     const confirmedId = confirmIdInput.value.trim();
@@ -74,18 +96,15 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    const payload = {
-      fullName: fullName,
-      employeeId: confirmedId,
-      timestamp: new Date().toISOString(),
-      notInRoster: true
-    };
-
     fetch(WEB_APP_URL, {
       method: "POST",
-      mode: "no-cors",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        fullName: fullName,
+        employeeId: confirmedId,
+        timestamp: new Date().toISOString(),
+        notInRoster: true
+      })
     });
 
     status.textContent = "Sign-in recorded. Thank you!";
@@ -95,19 +114,4 @@ document.addEventListener("DOMContentLoaded", function () {
     input.value = "";
     input.focus();
   });
-
-  function submitToSheet(payload) {
-    fetch(WEB_APP_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    status.textContent = "Sign-in successful!";
-    setTimeout(() => { status.textContent = ""; }, 3000);
-
-    input.value = "";
-    input.focus();
-  }
 });
