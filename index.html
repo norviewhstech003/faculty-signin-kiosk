@@ -15,6 +15,12 @@
       <input type="text" id="employee-id" name="employeeId" placeholder="Scan or enter your ID" autofocus autocomplete="off" />
       <input type="submit" value="Submit" />
     </form>
+    <form id="fallback-form" style="display: none;">
+      <p>This ID is not in the system.</p>
+      <input type="text" id="full-name" placeholder="Enter your full legal name" />
+      <input type="text" id="confirm-id" placeholder="Re-enter your Employee ID" />
+      <button type="button" id="fallback-submit">Submit</button>
+    </form>
     <p id="status"></p>
   </div>
 </body>
