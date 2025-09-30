@@ -59,19 +59,32 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    fetch(WEB_APP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ employeeId: id, timestamp: new Date().toISOString() })
-    })
-    .then(r => r.json())
-    .then(res => {
-      if (res.status === "notInRoster") {
-        // Show fallback form
-        form.style.display = "none";
-        fallbackForm.style.display = "block";
-        confirmIdInput.value = id;
-        status.textContent = "This ID is not in the system. Please enter your full name.";
+    fetch(https://script.google.com/macros/s/AKfycbzXfen0UDdXOjwH99Lij1VkOmVxp-tmZGPkMSGUQOXYwREZWmVpKNta1RwzQWy6aVVp/exec, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ employeeId: id, timestamp: new Date().toISOString() })
+})
+.then(r => r.json())
+.then(res => {
+  if (res.status === "notInRoster") {
+    // Show fallback form
+    form.style.display = "none";
+    fallbackForm.style.display = "block";
+    confirmIdInput.value = id;
+    status.textContent = "This ID is not in the system. Please enter your full name.";
+  } else if (res.status === "ok") {
+    status.textContent = "Sign-in successful!";
+    setTimeout(() => { status.textContent = ""; }, 3000);
+  } else {
+    status.textContent = "Error: " + (res.message || "Unknown issue");
+  }
+  input.value = "";
+  input.focus();
+})
+.catch(() => {
+  status.textContent = "Network error. Try again.";
+});
+
       } else if (res.status === "ok") {
         status.textContent = "Sign-in successful!";
         setTimeout(() => { status.textContent = ""; }, 3000);
@@ -96,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    fetch(WEB_APP_URL, {
+    fetch(https://script.google.com/macros/s/AKfycbzXfen0UDdXOjwH99Lij1VkOmVxp-tmZGPkMSGUQOXYwREZWmVpKNta1RwzQWy6aVVp/exec, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
