@@ -60,30 +60,28 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     fetch(WEB_APP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ employeeId: id, timestamp: new Date().toISOString() })
-    })
-    .then(r => r.json())
-    .then(res => {
-      if (res.status === "notInRoster") {
-        // Show fallback form
-        form.style.display = "none";
-        fallbackForm.style.display = "block";
-        confirmIdInput.value = id;
-        status.textContent = "This ID is not in the system. Please enter your full name.";
-      } else if (res.status === "ok") {
-        status.textContent = "Sign-in successful!";
-        setTimeout(() => { status.textContent = ""; }, 3000);
-      } else {
-        status.textContent = "Error: " + (res.message || "Unknown issue");
-      }
-      input.value = "";
-      input.focus();
-    })
-    .catch(() => {
-      status.textContent = "Network error. Try again.";
-    });
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ employeeId: id, timestamp: new Date().toISOString() })
+})
+.then(r => r.text())   // 👈 grab raw text
+.then(res => {
+  console.log("Raw response:", res);   // 👈 see in DevTools console
+  try {
+    const parsed = JSON.parse(res);
+    if (parsed.status === "ok") {
+      status.textContent = "Sign-in successful!";
+    } else {
+      status.textContent = "Error: " + (parsed.message || "Unknown issue");
+    }
+  } catch (err) {
+    status.textContent = "Response was not JSON. Check console.";
+  }
+})
+.catch(err => {
+  console.error("Fetch failed:", err);
+  status.textContent = "Network error. Try again.";
+});
   });
 
   // Handle fallback submission
