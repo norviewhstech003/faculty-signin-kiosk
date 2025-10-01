@@ -59,24 +59,21 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    fetch(WEB_APP_URL, {
+  fetch(WEB_APP_URL, {
+  mode: "no-cors",   // 👈 added
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ employeeId: id, timestamp: new Date().toISOString() })
 })
-.then(r => r.text())   // 👈 grab raw text
-.then(res => {
-  console.log("Raw response:", res);   // 👈 see in DevTools console
-  try {
-    const parsed = JSON.parse(res);
-    if (parsed.status === "ok") {
-      status.textContent = "Sign-in successful!";
-    } else {
-      status.textContent = "Error: " + (parsed.message || "Unknown issue");
-    }
-  } catch (err) {
-    status.textContent = "Response was not JSON. Check console.";
-  }
+.then(r => {
+  console.log("Fetch response object:", r);
+  status.textContent = "Request sent (but response is opaque due to no-cors).";
+})
+.catch(err => {
+  console.error("Fetch failed:", err);
+  status.textContent = "Network error. Try again.";
+});
+
 })
 .catch(err => {
   console.error("Fetch failed:", err);
