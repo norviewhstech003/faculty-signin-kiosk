@@ -50,57 +50,63 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // Primary form submission
-  form.addEventListener("submit", function (e) {
-    e.preventDefault();
-    const id = input.value.trim();
+form.addEventListener("submit", function (e) {
+  e.preventDefault();
+  const id = input.value.trim();
 
-    if (!/^\d{4,5}$/.test(id)) {
-      status.textContent = "Please enter a valid 4- or 5-digit ID.";
-      return;
-    }
+  if (!/^\d{4,5}$/.test(id)) {
+    status.textContent = "Please enter a valid 4- or 5-digit ID.";
+    return;
+  }
 
   fetch(WEB_APP_URL, {
-  mode: "no-cors",   // 👈 added
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ employeeId: id, timestamp: new Date().toISOString() })
-})
-.then(r => {
-  console.log("Fetch response object:", r);
-  status.textContent = "Request sent (but response is opaque due to no-cors).";
-})
-.catch(err => {
-  console.error("Fetch failed:", err);
-  status.textContent = "Network error. Try again.";
+    // ❌ no 'no-cors' here — we need a readable JSON response
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ employeeId: id, timestamp: new Date().toISOString() })
+  })
+    .then(r => r.json())
+    .then(res => {
+      if (res.status === "notInRoster") {
+        // Show fallback form to capture full name + confirm ID
+        form.style.display = "none";
+        fallbackForm.style.display = "block";
+        confirmIdInput.value = id;
+        status.textContent = "This ID is not in the system. Please enter your full name.";
+      } else if (res.status === "ok") {
+        status.textContent = "Sign-in successful!";
+        setTimeout(() => { status.textContent = ""; }, 3000);
+        input.value = "";
+        input.focus();
+      } else {
+        status.textContent = "Error: " + (res.message || "Unknown issue");
+      }
+    })
+    .catch(() => {
+      status.textContent = "Network error. Try again.";
+    });
 });
-
-})
-.catch(err => {
-  console.error("Fetch failed:", err);
-  status.textContent = "Network error. Try again.";
-});
-  });
 
   // Handle fallback submission
-  fallbackSubmit.addEventListener("click", function () {
-    const fullName = fullNameInput.value.trim();
-    const confirmedId = confirmIdInput.value.trim();
+ fallbackSubmit.addEventListener("click", function () {
+  const fullName = fullNameInput.value.trim();
+  const confirmedId = confirmIdInput.value.trim();
 
-    if (!fullName || !/^\d{4,5}$/.test(confirmedId)) {
-      status.textContent = "Please enter your full name and a valid 4- or 5-digit ID.";
-      return;
-    }
+  if (!fullName || !/^\d{4,5}$/.test(confirmedId)) {
+    status.textContent = "Please enter your full name and a valid 4- or 5-digit ID.";
+    return;
+  }
 
-    fetch(WEB_APP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fullName: fullName,
-        employeeId: confirmedId,
-        timestamp: new Date().toISOString(),
-        notInRoster: true
-      })
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fullName: fullName,
+      employeeId: confirmedId,
+      timestamp: new Date().toISOString(),
+      notInRoster: true
     })
+  })
     .then(r => r.json())
     .then(res => {
       if (res.status === "ok" || res.status === "notInRoster") {
@@ -109,6 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else {
         status.textContent = "Error: " + (res.message || "Unknown issue");
       }
+      // Reset back to main form
       fallbackForm.reset();
       fallbackForm.style.display = "none";
       form.style.display = "block";
@@ -118,5 +125,5 @@ document.addEventListener("DOMContentLoaded", function () {
     .catch(() => {
       status.textContent = "Network error. Try again.";
     });
-  });
+});
 });
