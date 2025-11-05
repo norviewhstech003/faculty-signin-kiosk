@@ -59,71 +59,43 @@ form.addEventListener("submit", function (e) {
     return;
   }
 
-  fetch(WEB_APP_URL, {
-    // ❌ no 'no-cors' here — we need a readable JSON response
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ employeeId: id, timestamp: new Date().toISOString() })
+fetch(WEB_APP_URL, {
+  method: "POST",
+  body: JSON.stringify({
+    employeeId: id,
+    timestamp: new Date().toISOString()
   })
-    .then(r => r.json())
-    .then(res => {
-      if (res.status === "notInRoster") {
-        // Show fallback form to capture full name + confirm ID
-        form.style.display = "none";
-        fallbackForm.style.display = "block";
-        confirmIdInput.value = id;
-        status.textContent = "This ID is not in the system. Please enter your full name.";
-      } else if (res.status === "ok") {
-        status.textContent = "Sign-in successful!";
-        setTimeout(() => { status.textContent = ""; }, 3000);
-        input.value = "";
-        input.focus();
-      } else {
-        status.textContent = "Error: " + (res.message || "Unknown issue");
-      }
-    })
-    .catch(() => {
-      status.textContent = "Network error. Try again.";
-    });
-});
+})
+  .then(async r => {
+    const text = await r.text();
+    console.log("Raw response:", text);
 
-  // Handle fallback submission
- fallbackSubmit.addEventListener("click", function () {
-  const fullName = fullNameInput.value.trim();
-  const confirmedId = confirmIdInput.value.trim();
-
-  if (!fullName || !/^\d{4,5}$/.test(confirmedId)) {
-    status.textContent = "Please enter your full name and a valid 4- or 5-digit ID.";
-    return;
-  }
-
-  fetch(WEB_APP_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      fullName: fullName,
-      employeeId: confirmedId,
-      timestamp: new Date().toISOString(),
-      notInRoster: true
-    })
+    let res;
+    try {
+      res = JSON.parse(text);
+    } catch {
+      status.textContent = "Server did not return JSON. Response: " + text.slice(0, 120);
+      throw new Error("Non-JSON response");
+    }
+    return res;
   })
-    .then(r => r.json())
-    .then(res => {
-      if (res.status === "ok" || res.status === "notInRoster") {
-        status.textContent = "Sign-in recorded. Thank you!";
-        setTimeout(() => { status.textContent = ""; }, 3000);
-      } else {
-        status.textContent = "Error: " + (res.message || "Unknown issue");
-      }
-      // Reset back to main form
-      fallbackForm.reset();
-      fallbackForm.style.display = "none";
-      form.style.display = "block";
+  .then(res => {
+    if (res.status === "notInRoster") {
+      form.style.display = "none";
+      fallbackForm.style.display = "block";
+      confirmIdInput.value = id;
+      status.textContent = "This ID is not in the system. Please enter your full name.";
+    } else if (res.status === "ok") {
+      status.textContent = "Sign-in successful!";
+      setTimeout(() => { status.textContent = ""; }, 3000);
       input.value = "";
       input.focus();
-    })
-    .catch(() => {
-      status.textContent = "Network error. Try again.";
-    });
+    } else {
+      status.textContent = "Error: " + (res.message || "Unknown issue");
+    }
+  })
+  .catch(() => {
+    status.textContent = "Network error. Try again.";
+  });
 });
 });
