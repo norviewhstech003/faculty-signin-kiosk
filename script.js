@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const fallbackSubmit = document.getElementById("fallback-submit");
 
   // 👇 Paste your latest Web App URL here after each Apps Script deployment
-  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby-FWzipayQL6tOP9xEeq3jbBKqlKMaLtndEcxcPA8ogNz7Msr8YUkbnlKLLB7aOBRK/exec";
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwt7T19upulx_rJHaLDu-kv0Cw9IAHcaCu6jJyt72EH9ES8K4Sh6irJma5zuMCGZIGD/exec";
 
   // Show today's date
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
